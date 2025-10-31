@@ -199,7 +199,7 @@ resource assignDebugUserToCosmosAccountReader 'Microsoft.Authorization/roleAssig
   }
 }
 
-@description('Grant the AI Foundry Project managed identity Cosmos Db Db Operator user role permissions.')
+@description('Grant the AI Foundry Project managed identity Cosmos DB Operator user role permissions.')
 module projectDbCosmosDbOperatorAssignment './modules/cosmosdbRoleAssignment.bicep' = {
   name: 'projectDbCosmosDbOperatorAssignmentDeploy'
   params: {
