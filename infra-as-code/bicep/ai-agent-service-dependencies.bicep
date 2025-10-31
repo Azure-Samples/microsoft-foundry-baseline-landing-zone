@@ -53,6 +53,7 @@ module deployAgentStorageAccount 'ai-agent-blob-storage.bicep' = {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
     debugUserPrincipalId: debugUserPrincipalId
     privateEndpointSubnetResourceId: privateEndpointSubnetResourceId
+    existingAgentUserManagedIdentityName: agentUserManagedIdentity.name
   }
 }
 
@@ -65,6 +66,7 @@ module deployCosmosDbThreadStorageAccount 'cosmos-db.bicep' = {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
     debugUserPrincipalId: debugUserPrincipalId
     privateEndpointSubnetResourceId: privateEndpointSubnetResourceId
+    existingAgentUserManagedIdentityName: agentUserManagedIdentity.name
   }
 }
 
@@ -77,6 +79,7 @@ module deployAzureAISearchService 'ai-search.bicep' = {
     logAnalyticsWorkspaceName: logAnalyticsWorkspace.name
     debugUserPrincipalId: debugUserPrincipalId
     privateEndpointSubnetResourceId: privateEndpointSubnetResourceId
+    existingAgentUserManagedIdentityName: agentUserManagedIdentity.name
   }
 }
 
