@@ -236,3 +236,5 @@ output aiSearchAccountName string = deployAIAgentServiceDependencies.outputs.aiS
 output bingAccountName string = deployBingAccount.outputs.bingAccountName
 @description('The name of the Application Insights resource.')
 output webApplicationInsightsResourceName string = deployApplicationInsights.outputs.applicationInsightsName
+@description('The name of the AI Foundry Project Agent User Managed Identity.')
+output existingAgentUserManagedIdentityName string = deployAIAgentServiceDependencies.outputs.agentUserManagedIdentityName

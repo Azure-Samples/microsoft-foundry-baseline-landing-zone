@@ -239,6 +239,7 @@ The following steps are required to deploy the infrastructure from the command l
    AISEARCH_ACCOUNT_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiSearchAccountName.value" -o tsv)
    BING_ACCOUNT_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.bingAccountName.value" -o tsv)
    WEBAPP_APPINSIGHTS_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.webApplicationInsightsResourceName.value" -o tsv)
+   EXISTING_AGENT_UMI_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.existingAgentUserManagedIdentityName.value" -o tsv)
    ```
 
 1. Deploy Azure AI Foundry project and agent capability host
@@ -254,7 +255,8 @@ The following steps are required to deploy the infrastructure from the command l
      -p existingStorageAccountName=${STORAGE_ACCOUNT_NAME} \
      -p existingAISearchAccountName=${AISEARCH_ACCOUNT_NAME} \
      -p existingBingAccountName=${BING_ACCOUNT_NAME} \
-     -p existingWebApplicationInsightsResourceName=${WEBAPP_APPINSIGHTS_NAME}
+     -p existingWebApplicationInsightsResourceName=${WEBAPP_APPINSIGHTS_NAME} \
+     -p existingAgentUserManagedIdentityName=${EXISTING_AGENT_UMI_NAME}
    ```
 
 ### 2. Deploy an agent in the Azure AI Foundry Agent Service

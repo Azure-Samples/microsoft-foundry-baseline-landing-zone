@@ -88,5 +88,5 @@ module deployAzureAISearchService 'ai-search.bicep' = {
 output cosmosDbAccountName string = deployCosmosDbThreadStorageAccount.outputs.cosmosDbAccountName
 output storageAccountName string = deployAgentStorageAccount.outputs.storageAccountName
 output aiSearchName string = deployAzureAISearchService.outputs.aiSearchName
-// output deploymentScriptManagedIdentityId string = deploymentScriptManagedIdentity.id
 output logAnalyticsWorkspaceName string = logAnalyticsWorkspace.name
+output agentUserManagedIdentityName string = agentUserManagedIdentity.name
