@@ -20,7 +20,7 @@ param privateEndpointSubnetResourceId string
 
 // ---- New resources ----
 
-@description('The agent User Managed Identity for the AI Foundry Project. This is used when a user uploads a file to the agent, and the agent needs to search for information in that file.')
+@description('The agent User Managed Identity for the Foundry project. This is used when a user uploads a file to the agent, and the agent needs to search for information in that file.')
 resource agentUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' = {
   name: 'mi-agent-${baseName}'
   location: location

@@ -22,13 +22,13 @@ param logAnalyticsWorkspaceName string
 @minLength(1)
 param privateEndpointSubnetResourceId string
 
-@description('The existing User Managed Identity for the AI Foundry project.')
+@description('The existing User Managed Identity for the Foundry project.')
 @minLength(1)
 param existingAgentUserManagedIdentityName string
 
 // ---- Existing resources ----
 
-@description('Existing Agent User Managed Identity for the AI Foundry Project.')
+@description('Existing Agent User Managed Identity for the Foundry project.')
 resource agentUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' existing = {
   name: existingAgentUserManagedIdentityName
 }
@@ -108,7 +108,7 @@ resource debugUserBlobDataOwnerAssignment 'Microsoft.Authorization/roleAssignmen
   }
 }
 
-@description('Grant the AI Foundry Project managed identity Storage Account Blob Data Contributor user role permissions.')
+@description('Grant the Foundry project managed identity Storage Account Blob Data Contributor user role permissions.')
 module projectBlobDataContributorAssignment './modules/storageAccountRoleAssignment.bicep' = {
   name: 'projectBlobDataContributorAssignmentDeploy'
   params: {
@@ -185,7 +185,7 @@ resource agentStorageAccountLocks 'Microsoft.Authorization/locks@2020-05-01' = {
   name: '${agentStorageAccount.name}-lock'
   properties: {
     level: 'CanNotDelete'
-    notes: 'Prevent deleting; recovery not practical. Hard dependency for your AI Foundry Agent Service.'
+    notes: 'Prevent deleting; recovery not practical. Hard dependency for your Foundry Agent Service.'
     owners: []
   }
 }

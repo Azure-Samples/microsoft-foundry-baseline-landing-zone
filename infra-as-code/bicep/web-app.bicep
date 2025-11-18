@@ -44,9 +44,9 @@ param existingWebAppDeploymentStorageAccountName string
 @minLength(1)
 param existingWebApplicationInsightsResourceName string
 
-@description('The name of the existing Azure AI Foundry instance that the the Azure Web App code will be calling for Azure AI Agent service agents.')
+@description('The name of the existing Foundry instance that the the Azure Web App code will be calling for Foundry Agent Service agents.')
 @minLength(2)
-param existingAzureAiFoundryResourceName string
+param existingFoundryResourceName string
 
 // variables
 var appName = 'app-${baseName}'
@@ -99,9 +99,9 @@ resource azureAiProjectManagerRole 'Microsoft.Authorization/roleDefinitions@2022
   scope: subscription()
 }*/
 
-@description('Existing Azure AI Foundry account. This account is where the agents hosted in Azure AI Agent service will be deployed. The web app code calls to these agents.')
-resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' existing = {
-  name: existingAzureAiFoundryResourceName
+@description('Existing Microsoft Foundry account. This account is where the agents hosted in Foundry Agent Service will be deployed. The web app code calls to these agents.')
+resource foundry 'Microsoft.CognitiveServices/accounts@2025-04-01-preview' existing = {
+  name: existingFoundryResourceName
 }
 
 // ---- New resources ----
@@ -123,10 +123,10 @@ resource blobDataReaderRoleAssignment 'Microsoft.Authorization/roleAssignments@2
   }
 }
 
-@description('Grant the App Service managed identity Azure AI user role permission so it can call into the Azure AI Foundry-hosted agent.')
+@description('Grant the App Service managed identity Azure AI user role permission so it can call into the Foundry-hosted agent.')
 resource azureAiUserRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: aiFoundry
-  name: guid(aiFoundry.id, appServiceManagedIdentity.id, azureAiUserRole.id)
+  scope: foundry
+  name: guid(foundry.id, appServiceManagedIdentity.id, azureAiUserRole.id)
   properties: {
     roleDefinitionId: azureAiUserRole.id
     principalType: 'ServicePrincipal'

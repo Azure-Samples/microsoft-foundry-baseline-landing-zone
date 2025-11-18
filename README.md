@@ -1,8 +1,8 @@
-# Azure AI Foundry Agent Service chat baseline reference implementation in an application landing zone
+# Microsoft Foundry Agent Service chat baseline reference implementation in an application landing zone
 
-This reference implementation extends the foundation set in the [Azure AI Foundry Agent Service chat baseline](https://github.com/Azure-Samples/openai-end-to-end-baseline/) reference implementation. Specifically, this repository takes that reference implementation and deploys it within an application landing zone.
+This reference implementation extends the foundation set in the [Microsoft Foundry Agent Service chat baseline](https://github.com/Azure-Samples/openai-end-to-end-baseline/) reference implementation. Specifically, this repository takes that reference implementation and deploys it within an application landing zone.
 
-If you haven't yet, you should start by reviewing the [Baseline Azure AI Foundry chat reference architecture in an Azure landing zone](https://learn.microsoft.com/azure/architecture/ai-ml/architecture/azure-openai-baseline-landing-zone) article on Microsoft Learn. It sets important context for this implementation that is not covered in this deployment guide.
+If you haven't yet, you should start by reviewing the [Baseline Microsoft Foundry chat reference architecture in an Azure landing zone](https://learn.microsoft.com/azure/architecture/ai-ml/architecture/baseline-azure-ai-foundry-landing-zone) article on Microsoft Learn. It sets important context for this implementation that is not covered in this deployment guide.
 
 ## Azure landing zone: application landing zone deployment
 
@@ -13,15 +13,14 @@ This application landing zone deployment guide assuming you are using a typical 
 
 ### Differences from the Azure OpenAI end-to-end chat baseline reference implementation
 
-The key differences when integrating the Azure AI Foundry Agent Service chat baseline into an application landing zone as opposed to a fully standalone deployment are as follows:
+The key differences when integrating the Foundry Agent Service chat baseline into an application landing zone as opposed to a fully standalone deployment are as follows:
 
 - **Virtual network**: The virtual network will be deployed and configured by the platform team. This involves them providing a UDR and DNS configuration on the virtual network. The subnets are still under the control of the workload team.
 
 - **DNS forwarding**: Rather than using local DNS settings, the application's virtual network likely will be configured to use central DNS servers, such as Azure Firewall DNS Proxy or Azure Private DNS Resolver, for DNS forwarding. This centralizes DNS management and ensures consistency across the landscape.
 
-  | :warning: | Azure AI Foundry will require Azure Private DNS resolver to inject specific rules to resolve its dependencies. |
+  | :warning: | Microsoft Foundry will require Azure Private DNS resolver to inject specific rules to resolve its dependencies. |
   | :-------: | :------------------------- |
-
 
 - **Bastion host**: Instead of deploying an Azure Bastion host within the application's landing zone, a centralized bastion service already provisioned within the platform landing zone subscriptions is used. This means all remote administrative traffic is routed through a common, secure access point, adhering to the principle of least privilege and centralized auditing.
 
@@ -38,7 +37,7 @@ Partial configuration for this scenario is in the **parameters.alz.json** file, 
 - `snet-appGateway`: The subnet for the Azure Application Gateway.
 - `snet-appServicePlan`: The subnet for the Azure App Service.
 - `snet-privateEndpoints`: The subnet for the Azure Private Endpoint.
-- `snet-agentsEgress`: The subnet for the Azure AI Foundry Agent Service.
+- `snet-agentsEgress`: The subnet for the Foundry Agent Service.
 - `snet-jumpBoxes`: The subnet for the jumboxes.
 - `snet-buildAgents`: The subnet for the build agents.
 
@@ -46,36 +45,36 @@ Partial configuration for this scenario is in the **parameters.alz.json** file, 
 
 Just like the baseline reference implementation, this implementation covers the same following three scenarios:
 
-- [Setting up Azure AI Foundry to host agents](#setting-up-azure-ai-foundry-to-host-agents)
-- [Deploying an agent into Azure AI Foundry Agent Service](#deploying-an-agent-into-azure-ai-foundry-agent-service)
+- [Setting up Microsoft Foundry to host agents](#setting-up-microsoft-foundry-to-host-agents)
+- [Deploying an agent into Foundry Agent Service](#deploying-an-agent-into-foundry-agent-service)
 - [Invoking the agent from .NET code hosted in an Azure Web App](#invoking-the-agent-from-net-code-hosted-in-an-azure-web-app)
 
 ![Diagram of the Architecture diagram of the workload, including select platform subscription resources.](docs/media/baseline-azure-ai-foundry-landing-zone.svg)
 
 *Download a [Visio file](docs/media/baseline-azure-ai-foundry-landing-zone.vsdx) of this architecture.*
 
-### Setting up Azure AI Foundry to host agents
+### Setting up Microsoft Foundry to host agents
 
-Azure AI Foundry hosts Azure AI Foundry Agent Service as a capability. Foundry Agent service's REST APIs are exposed as an AI Foundry private endpoint within the network, and the agents' all egress through a delegated subnet which is routed through Azure Firewall for any internet traffic. This architecture deploys the Foundry Agent Service with its dependencies hosted within your own Azure Application landing zone subscription. As such, this architecture includes an Azure Storage account, Azure AI Search instance, and an Azure Cosmos DB account specifically for the Foundry Agent Service to manage.
+Microsoft Foundry hosts the Foundry Agent Service as a capability. Foundry Agent Service's REST APIs are exposed as a Foundry private endpoint within the network, and the agents' all egress through a delegated subnet which is routed through Azure Firewall for any internet traffic. This architecture deploys the Foundry Agent Service with its dependencies hosted within your own Azure Application landing zone subscription. As such, this architecture includes an Azure Storage account, Azure AI Search instance, and an Azure Cosmos DB account specifically for the Foundry Agent Service to manage.
 
-### Deploying an agent into Azure AI Foundry Agent Service
+### Deploying an agent into Foundry Agent Service
 
-Agents can be created via the Azure AI Foundry portal, Azure AI Persistent Agents client library, or the REST API. The creation and invocation of agents are a data plane operation. Since the data plane to Azure AI Foundry is private, all three of those are restricted to being executed from within a private network connected to the private endpoint of Azure AI Foundry.
+Agents can be created via the Foundry portal, Azure AI Persistent Agents client library, or the REST API. The creation and invocation of agents are a data plane operation. Since the data plane to Foundry is private, all three of those are restricted to being executed from within a private network connected to the private endpoint of Foundry.
 
 Ideally agents should be source-controlled and a versioned asset. You then can deploy agents in a coordinated way with the rest of your workload's code. In this deployment guide, you'll create an agent from the jump box to simulate a deployment pipeline which could have created the agent.
 
-If using the Azure AI Foundry portal is desired, then the web browser experience must be performed from a VM within the network or from a workstation that has VPN access to the private network and can properly resolve private DNS records.
+If using the Foundry portal is desired, then the web browser experience must be performed from a VM within the network or from a workstation that has VPN access to the private network and can properly resolve private DNS records.
 
 ### Invoking the agent from .NET code hosted in an Azure Web App
 
-A chat UI application is deployed into a private Azure App Service. The UI is accessed through Application Gateway (WAF). The .NET code uses the Azure AI Persistent Agents client library to connect to the workload's agent. The endpoint for the agent is exposed exclusively through the Azure AI Foundry private endpoint.
+A chat UI application is deployed into a private Azure App Service. The UI is accessed through Application Gateway (WAF). The .NET code uses the Azure AI Persistent Agents client library to connect to the workload's agent. The endpoint for the agent is exposed exclusively through the Foundry private endpoint.
 
 ## Deployment guide
 
 Follow these instructions to deploy this example to your application landing zone subscription, try out what you've deployed, and learn how to clean up those resources.
 
 > [!WARNING]
-> The deployment steps assume you have an application landing zone already provisioned through your subscription vending process. This deployment will not work unless you have permission to manage subnets on an existing virtual network and means to ensure private endpoint DNS configuration (such as platform provided DINE Azure Policy). It also requires your platform team to have required NVA allowances on the hub's egress firewall and configured Azure DNS Forwarding rulesets targeting the Azure DNS Private Resolver input IP address for the following Azure AI Foundry capability host domain dependencies.
+> The deployment steps assume you have an application landing zone already provisioned through your subscription vending process. This deployment will not work unless you have permission to manage subnets on an existing virtual network and means to ensure private endpoint DNS configuration (such as platform provided DINE Azure Policy). It also requires your platform team to have required NVA allowances on the hub's egress firewall and configured Azure DNS Forwarding rulesets targeting the Azure DNS Private Resolver input IP address for the following Foundry Agent Service capability host domain dependencies.
 
 ![Architecture diagram that focuses mostly on network ingress flows.](docs/media/baseline-landing-zone-networking.svg)
 
@@ -94,7 +93,7 @@ Follow these instructions to deploy this example to your application landing zon
   - One unassociated route table to force Internet-bound traffic through a platform-provided NVA *(if not using Azure VWAN)*
     - In the same region as your spoke virtual network
 
-  - A mechanism to get private endpoint DNS registered with the DNS services configured in the virtual network. It also supports injecting specific domains and enables both centralized and distributed DNS registration as a fallback strategy. This ensures that, even when certain services such as Azure AI Foundry cannot rely on centralized DNS resolution, the mechanism can still inject domains like `documents.azure.com`, `search.windows.net`, and `blob.core.windows.net` as needed.
+  - A mechanism to get private endpoint DNS registered with the DNS services configured in the virtual network. It also supports injecting specific domains and enables both centralized and distributed DNS registration as a fallback strategy. This ensures that, even when certain services such as Foundry cannot rely on centralized DNS resolution, the mechanism can still inject domains like `documents.azure.com`, `search.windows.net`, and `blob.core.windows.net` as needed.
 
 - The application landing zone subscription must have the following quota available in the location you'll select to deploy this implementation.
 
@@ -102,7 +101,7 @@ Follow these instructions to deploy this example to your application landing zon
   - App Service Plans: P1v3 (AZ), 3 instances
   - Azure AI Search (S - Standard): 1
   - Azure Cosmos DB: 1 account
-  - Azure OpenAI in Foundry Model: GPT-4o model deployment with 50k TPM capacity
+  - Azure OpenAI in Foundry Models: GPT-4o model deployment with 50k TPM capacity
   - Public IPv4 Addresses - Standard: 4
   - Storage Accounts: 2
 
@@ -217,7 +216,7 @@ The following steps are required to deploy the infrastructure from the command l
    PRINCIPAL_ID=$(az ad signed-in-user show --query id -o tsv)
 
    az deployment sub create -f ./infra-as-code/bicep/main.bicep \
-     -n ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} \
+     -n foundry-chat-prereq-lz-baseline-${BASE_NAME} \
      -l $LOCATION \
      -p workloadResourceGroupName=${RESOURCE_GROUP} \
      -p baseName=${BASE_NAME} \
@@ -227,30 +226,30 @@ The following steps are required to deploy the infrastructure from the command l
      -p @./infra-as-code/bicep/parameters.alz.json
    ```
 
-   | :warning: | Before you deploy Azure AI Foundry and its agent capability, you must wait until the Foundry Agent Service dependencies are fully resolvable to their private endpoints from within the spoke network. This requirement is especially important if DINE policies handle updates to DNS private zones. If you attempt to deploy the Foundry Agent Service capability before the private DNS records are resolvable from within your subnet, the deployment fails. |
+   | :warning: | Before you deploy Microsoft Foundry and its agent capability, you must wait until the Foundry Agent Service dependencies are fully resolvable to their private endpoints from within the spoke network. This requirement is especially important if DINE policies handle updates to DNS private zones. If you attempt to deploy the Foundry Agent Service capability before the private DNS records are resolvable from within your subnet, the deployment fails. |
    | :-------: | :------------------------- |
 
 1. Get workload prequisites outputs
 
    ```bash
-   AIFOUNDRY_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiFoundryName.value" -o tsv)
-   COSMOSDB_ACCOUNT_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.cosmosDbAccountName.value" -o tsv)
-   STORAGE_ACCOUNT_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.storageAccountName.value" -o tsv)
-   AISEARCH_ACCOUNT_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiSearchAccountName.value" -o tsv)
-   BING_ACCOUNT_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.bingAccountName.value" -o tsv)
-   WEBAPP_APPINSIGHTS_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.webApplicationInsightsResourceName.value" -o tsv)
-   EXISTING_AGENT_UMI_NAME=$(az deployment sub show --name ai-foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.existingAgentUserManagedIdentityName.value" -o tsv)
+   FOUNDRY_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiFoundryName.value" -o tsv)
+   COSMOSDB_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.cosmosDbAccountName.value" -o tsv)
+   STORAGE_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.storageAccountName.value" -o tsv)
+   AISEARCH_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiSearchAccountName.value" -o tsv)
+   BING_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.bingAccountName.value" -o tsv)
+   WEBAPP_APPINSIGHTS_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.webApplicationInsightsResourceName.value" -o tsv)
+   EXISTING_AGENT_UMI_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.existingAgentUserManagedIdentityName.value" -o tsv)
    ```
 
-1. Deploy Azure AI Foundry project and agent capability host
+1. Deploy the Foundry project and agent capability host
 
    :clock9: *This might take about 5 minutes.*
 
    ```bash
    az deployment group create -f ./infra-as-code/bicep/ai-foundry-project.bicep \
-     -n ai-foundry-chat-lz-baseline-${BASE_NAME} \
+     -n foundry-chat-lz-baseline-${BASE_NAME} \
      -g ${RESOURCE_GROUP} \
-     -p existingAiFoundryName=${AIFOUNDRY_NAME} \
+     -p existingFoundryName=${FOUNDRY_NAME} \
      -p existingCosmosDbAccountName=${COSMOSDB_ACCOUNT_NAME} \
      -p existingStorageAccountName=${STORAGE_ACCOUNT_NAME} \
      -p existingAISearchAccountName=${AISEARCH_ACCOUNT_NAME} \
@@ -259,9 +258,9 @@ The following steps are required to deploy the infrastructure from the command l
      -p existingAgentUserManagedIdentityName=${EXISTING_AGENT_UMI_NAME}
    ```
 
-### 2. Deploy an agent in the Azure AI Foundry Agent Service
+### 2. Deploy an agent in the Foundry Agent Service
 
-To test this scenario, you'll be deploying an AI agent included in this repository. The agent uses a GPT model combined with a Bing search for grounding data. Deploying an AI agent requires data plane access to Azure AI Foundry. In this architecture, a network perimeter is established, and you must interact with the Azure AI Foundry portal and its resources from within the network.
+To test this scenario, you'll be deploying an AI agent included in this repository. The agent uses a GPT model combined with a Bing search for grounding data. Deploying an AI agent requires data plane access to Foundry. In this architecture, a network perimeter is established, and you must interact with the Foundry portal and its resources from within the network.
 
 The AI agent definition would likely be deployed from your application's pipeline running from a build agent in your workload's network or it could be deployed via singleton code in your web application. In this deployment, you'll create the agent from the jump box, which most closely simulates pipeline-based creation.
 
@@ -311,16 +310,16 @@ The AI agent definition would likely be deployed from your application's pipelin
 
    ```powershell
    $RESOURCE_GROUP="rg-chat-alz-baseline-${BASE_NAME}"
-   $AI_FOUNDRY_NAME="aif${BASE_NAME}"
+   $FOUNDRY_NAME="aif${BASE_NAME}"
    $BING_CONNECTION_NAME="bingaiagent${BASE_NAME}"
-   $AI_FOUNDRY_PROJECT_NAME="projchat"
+   $FOUNDRY_PROJECT_NAME="projchat"
    $MODEL_CONNECTION_NAME="agent-model"
-   $BING_CONNECTION_ID="$(az cognitiveservices account show -n $AI_FOUNDRY_NAME -g $RESOURCE_GROUP --query 'id' --out tsv)/projects/${AI_FOUNDRY_PROJECT_NAME}/connections/${BING_CONNECTION_NAME}"
-   $AI_FOUNDRY_AGENT_CREATE_URL="https://${AI_FOUNDRY_NAME}.services.ai.azure.com/api/projects/${AI_FOUNDRY_PROJECT_NAME}/assistants?api-version=2025-05-15-preview"
+   $BING_CONNECTION_ID="$(az cognitiveservices account show -n $FOUNDRY_NAME -g $RESOURCE_GROUP --query 'id' --out tsv)/projects/${FOUNDRY_PROJECT_NAME}/connections/${BING_CONNECTION_NAME}"
+   $FOUNDRY_AGENT_CREATE_URL="https://${FOUNDRY_NAME}.services.ai.azure.com/api/projects/${FOUNDRY_PROJECT_NAME}/assistants?api-version=2025-05-15-preview"
 
    echo $BING_CONNECTION_ID
    echo $MODEL_CONNECTION_NAME
-   echo $AI_FOUNDRY_AGENT_CREATE_URL
+   echo $FOUNDRY_AGENT_CREATE_URL
    ```
 
 1. Deploy the agent.
@@ -335,17 +334,17 @@ The AI agent definition would likely be deployed from your application's pipelin
    ${c:chat-with-bing-output.json} = ${c:chat-with-bing.json} -replace 'MODEL_CONNECTION_NAME', $MODEL_CONNECTION_NAME -replace 'BING_CONNECTION_ID', $BING_CONNECTION_ID
 
    # Deploy the agent
-   az rest -u $AI_FOUNDRY_AGENT_CREATE_URL -m "post" --resource "https://ai.azure.com" -b @chat-with-bing-output.json
+   az rest -u $FOUNDRY_AGENT_CREATE_URL -m "post" --resource "https://ai.azure.com" -b @chat-with-bing-output.json
 
    # Capture the Agent's ID
-   $AGENT_ID="$(az rest -u $AI_FOUNDRY_AGENT_CREATE_URL -m 'get' --resource 'https://ai.azure.com' --query 'data[0].id' -o tsv)"
+   $AGENT_ID="$(az rest -u $FOUNDRY_AGENT_CREATE_URL -m 'get' --resource 'https://ai.azure.com' --query 'data[0].id' -o tsv)"
 
    echo $AGENT_ID
    ```
 
-### 3. Test the agent from the Azure AI Foundry portal in the playground. *Optional.*
+### 3. Test the agent from the Foundry portal in the playground. *Optional.*
 
-Here you'll test your orchestration agent by invoking it directly from the Azure AI Foundry portal's playground experience. The Azure AI Foundry portal is only accessible from your private network, so you'll do this from your jump box.
+Here you'll test your orchestration agent by invoking it directly from the Foundry portal's playground experience. The Foundry portal is only accessible from your private network, so you'll do this from your jump box.
 
 *This step testing step is completely optional.*
 
@@ -353,9 +352,9 @@ Here you'll test your orchestration agent by invoking it directly from the Azure
 
    You'll need to sign in to the Azure portal, and resolve any Entra ID Conditional Access policies on your account, if this is the first time you are connecting through the jump box.
 
-1. Navigate to the Azure AI Foundry project named **projchat** in your resource group and open the Azure AI Foundry portal by clicking the **Go to Azure AI Foundry portal** button.
+1. Navigate to the Foundry project named **projchat** in your resource group and open the Foundry portal by clicking the **Go to Microsoft Foundry portal** button.
 
-   This will take you directly into the 'Chat project'. Alternatively, you can find all your AI Foundry accounts and projects by going to <https://ai.azure.com> and you do not need to use the Azure portal to access them.
+   This will take you directly into the 'Chat project'. Alternatively, you can find all your Foundry accounts and projects by going to <https://ai.azure.com> and you do not need to use the Azure portal to access them.
 
 1. Click **Agents** in the side navigation.
 
@@ -391,14 +390,14 @@ For this deployment guide, you'll continue using your jump box to simulate part 
    az storage blob upload -f chatui.zip --account-name "stwebapp${BASE_NAME}" --auth-mode login -c deploy -n chatui.zip
    ```
 
-1. Update the app configuration to use the Azure AI Foundry project endpoint you deployed.
+1. Update the app configuration to use the Foundry project endpoint you deployed.
 
    ```powershell
-   # Obtain the Azure AI Foundry project endpoint you deployed
-   $AIFOUNDRY_PROJECT_ENDPOINT=$(az deployment group show -g "${RESOURCE_GROUP}" -n "ai-foundry-chat-lz-baseline-${BASE_NAME}" --query "properties.outputs.aiAgentProjectEndpoint.value" -o tsv)
+   # Obtain the Foundry project endpoint you deployed
+   $FOUNDRY_PROJECT_ENDPOINT=$(az deployment group show -g "${RESOURCE_GROUP}" -n "foundry-chat-lz-baseline-${BASE_NAME}" --query "properties.outputs.aiAgentProjectEndpoint.value" -o tsv)
 
    # Update the app configuration
-   az webapp config appsettings set -n "app-${BASE_NAME}" -g $RESOURCE_GROUP --settings AIProjectEndpoint="${AIFOUNDRY_PROJECT_ENDPOINT}"
+   az webapp config appsettings set -n "app-${BASE_NAME}" -g $RESOURCE_GROUP --settings AIProjectEndpoint="${FOUNDRY_PROJECT_ENDPOINT}"
    ```
 
 1. Update the app configuration to use the agent you deployed.
@@ -413,9 +412,9 @@ For this deployment guide, you'll continue using your jump box to simulate part 
    az webapp restart --name "app-${BASE_NAME}" --resource-group $RESOURCE_GROUP
    ```
 
-### 5. Try it out! Test the deployed application that calls into the Azure AI Foundry Agent Service
+### 5. Try it out! Test the deployed application that calls into the Foundry Agent Service
 
-This section will help you to validate that the workload is exposed correctly and responding to HTTP requests. This will validate that traffic is flowing through Application Gateway, into your Web App, and from your Web App, into the Azure AI Foundry agent API endpoint, which hosts the agent and its chat history. The agent will interface with Bing for grounding data and an OpenAI model for generative responses.
+This section will help you to validate that the workload is exposed correctly and responding to HTTP requests. This will validate that traffic is flowing through Application Gateway, into your Web App, and from your Web App, into the Foundry agent API endpoint, which hosts the agent and its chat history. The agent will interface with Bing for grounding data and an OpenAI model for generative responses.
 
 | :computer: | Unless otherwise noted, the following steps are all performed from your original workstation, not from the jump box. |
 | :--------: | :------------------------- |
@@ -446,7 +445,7 @@ Most Azure resources deployed in the prior steps will incur ongoing charges unle
 
 Additionally, a few of the resources deployed enter soft delete status which will restrict the ability to redeploy another resource with the same name or DNS entry; and might not release quota. It's best to purge any soft deleted resources once you are done exploring. Use the following commands to delete the deployed resources and resource group and to purge each of the resources with soft delete.
 
-1. Delete the resource level locks for AI Foundry Project Capability Host dependencies
+1. Delete the resource level locks for Foundry project capability host dependencies
 
    ```bash
    az lock delete -g $RESOURCE_GROUP --resource-type 'Microsoft.Storage/storageAccounts' --resource stagent${BASE_NAME} -n stagent${BASE_NAME}-lock
@@ -473,7 +472,7 @@ Additionally, a few of the resources deployed enter soft delete status which wil
    ```bash
    # Purge the soft delete resources.
    az keyvault purge -n kv-${BASE_NAME} -l $LOCATION
-   az cognitiveservices account purge -g $RESOURCE_GROUP -l $LOCATION -n $AIFOUNDRY_NAME
+   az cognitiveservices account purge -g $RESOURCE_GROUP -l $LOCATION -n $FOUNDRY_NAME
    ```
 
 1. [Remove the Azure Policy assignments](https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade/Compliance) scoped to the resource group. To identify those created by this implementation, look for ones that are prefixed with `[BASE_NAME] `.

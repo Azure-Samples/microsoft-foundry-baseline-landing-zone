@@ -22,13 +22,13 @@ param debugUserPrincipalId string
 @minLength(1)
 param privateEndpointSubnetResourceId string
 
-@description('The existing User Managed Identity for the AI Foundry project.')
+@description('The existing User Managed Identity for the Foundry project.')
 @minLength(1)
 param existingAgentUserManagedIdentityName string
 
 // ---- Existing resources ----
 
-@description('Existing Agent User Managed Identity for the AI Foundry Project.')
+@description('Existing Agent User Managed Identity for the Foundry project.')
 resource agentUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2025-01-31-preview' existing = {
   name: existingAgentUserManagedIdentityName
 }
@@ -199,7 +199,7 @@ resource assignDebugUserToCosmosAccountReader 'Microsoft.Authorization/roleAssig
   }
 }
 
-@description('Grant the AI Foundry Project managed identity Cosmos DB Operator user role permissions.')
+@description('Grant the Foundry project managed identity Cosmos DB Operator user role permissions.')
 module projectDbCosmosDbOperatorAssignment './modules/cosmosdbRoleAssignment.bicep' = {
   name: 'projectDbCosmosDbOperatorAssignmentDeploy'
   params: {
@@ -216,7 +216,7 @@ resource cosmosDbAccountLocks 'Microsoft.Authorization/locks@2020-05-01' = {
   name: '${cosmosDbAccount.name}-lock'
   properties: {
     level: 'CanNotDelete'
-    notes: 'Prevent deleting; recovery not practical. Hard dependency for your AI Foundry Agent Service.'
+    notes: 'Prevent deleting; recovery not practical. Hard dependency for your Foundry Agent Service.'
     owners: []
   }
 }

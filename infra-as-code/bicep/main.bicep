@@ -60,7 +60,7 @@ param agentsSubnetAddressPrefix string
 @minLength(9)
 param jumpBoxSubnetAddressPrefix string
 
-@description('Assign your user some roles to support fluid access when working in the AI Foundry portal.')
+@description('Assign your user some roles to support fluid access when working in the Foundry portal.')
 @maxLength(36)
 @minLength(36)
 param yourPrincipalId string
@@ -112,9 +112,9 @@ module applyAzurePolicies 'azure-policies.bicep' = {
   }
 }
 
-// Deploy the Azure AI Foundry account and Azure AI Agent service components.
+// Deploy the Microsoft Foundry account and Foundry Agent Service components.
 
-@description('Deploys the Azure AI Agent dependencies, Azure Storage, Azure AI Search, and Cosmos DB.')
+@description('Deploys the Foundry Agent Service dependencies, Azure Storage, Azure AI Search, and Cosmos DB.')
 module deployAIAgentServiceDependencies 'ai-agent-service-dependencies.bicep' = {
   scope: rgWorkload
   params: {
@@ -124,15 +124,15 @@ module deployAIAgentServiceDependencies 'ai-agent-service-dependencies.bicep' = 
   }
 }
 
-@description('Deploy Azure AI Foundry with Azure AI Agent capability. No projects yet deployed.')
-module deployAzureAIFoundry 'ai-foundry.bicep' = {
+@description('Deploy Microsoft Foundry with Foundry Agent Service capability. No projects yet deployed.')
+module deployFoundry 'ai-foundry.bicep' = {
   scope: rgWorkload
   params: {
     baseName: baseName
     logAnalyticsWorkspaceName: deployAIAgentServiceDependencies.outputs.logAnalyticsWorkspaceName
     agentSubnetResourceId: networkModule.outputs.agentSubnetResourceId
     privateEndpointSubnetResourceId: networkModule.outputs.privateEndpointSubnetResourceId
-    aiFoundryPortalUserPrincipalId: yourPrincipalId
+    foundryPortalUserPrincipalId: yourPrincipalId
   }
 }
 
@@ -173,7 +173,7 @@ module deployKeyVault 'key-vault.bicep' = {
   }
 }
 
-@description('Deploy Application Insights. Used by the Azure Web App to monitor the deployed application and connected to the Azure AI Foundry project.')
+@description('Deploy Application Insights. Used by the Azure Web App to monitor the deployed application and connected to the Foundry project.')
 module deployApplicationInsights 'application-insights.bicep' = {
   scope: rgWorkload
   params: {
@@ -182,7 +182,7 @@ module deployApplicationInsights 'application-insights.bicep' = {
   }
 }
 
-@description('Deploy the web app for the front end demo UI. The web application will call into the Azure AI Agent service.')
+@description('Deploy the web app for the front end demo UI. The web application will call into the Agent service.')
 module deployWebApp 'web-app.bicep' = {
   scope: rgWorkload
   params: {
@@ -195,7 +195,7 @@ module deployWebApp 'web-app.bicep' = {
     privateEndpointsSubnetName: networkModule.outputs.privateEndpointSubnetName
     existingWebAppDeploymentStorageAccountName: deployWebAppStorage.outputs.appDeployStorageName
     existingWebApplicationInsightsResourceName: deployApplicationInsights.outputs.applicationInsightsName
-    existingAzureAiFoundryResourceName: deployAzureAIFoundry.outputs.aiFoundryName
+    existingFoundryResourceName: deployFoundry.outputs.foundryName
   }
 }
 
@@ -224,8 +224,8 @@ module customerUsageAttributionModule 'customerUsageAttribution/cuaIdSubscriptio
 
 // ---- Outputs ----
 
-@description('The name of the Azure AI Foundry account.')
-output aiFoundryName string = deployAzureAIFoundry.outputs.aiFoundryName
+@description('The name of the Microsoft Foundry account.')
+output foundryName string = deployFoundry.outputs.foundryName
 @description('The name of the Cosmos DB account.')
 output cosmosDbAccountName string = deployAIAgentServiceDependencies.outputs.cosmosDbAccountName
 @description('The name of the Storage Account.')
@@ -236,5 +236,5 @@ output aiSearchAccountName string = deployAIAgentServiceDependencies.outputs.aiS
 output bingAccountName string = deployBingAccount.outputs.bingAccountName
 @description('The name of the Application Insights resource.')
 output webApplicationInsightsResourceName string = deployApplicationInsights.outputs.applicationInsightsName
-@description('The name of the AI Foundry Project Agent User Managed Identity.')
+@description('The name of the Foundry project agent User Managed Identity.')
 output existingAgentUserManagedIdentityName string = deployAIAgentServiceDependencies.outputs.agentUserManagedIdentityName

@@ -21,12 +21,12 @@ param agentSubnetResourceId string
 @minLength(1)
 param privateEndpointSubnetResourceId string
 
-@description('Your principal ID. Allows you to access the Azure AI Foundry portal for post-deployment verification of functionality.')
+@description('Your principal ID. Allows you to access the Foundry portal for post-deployment verification of functionality.')
 @maxLength(36)
 @minLength(36)
-param aiFoundryPortalUserPrincipalId string
+param foundryPortalUserPrincipalId string
 
-var aiFoundryName = 'aif${baseName}'
+var foundryName = 'aif${baseName}'
 
 // ---- Existing resources ----
 
@@ -44,9 +44,9 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02
 
 // ---- New resources ----
 
-@description('Deploy Azure AI Foundry (account) with Azure AI Agent service capability.')
-resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
-  name: aiFoundryName
+@description('Deploy Microsoft Foundry (account) with Foundry Agent Service capability.')
+resource foundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
+  name: foundryName
   location: location
   kind: 'AIServices'
   sku: {
@@ -56,8 +56,8 @@ resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
     type: 'SystemAssigned'
   }
   properties: {
-    customSubDomainName: aiFoundryName
-    allowProjectManagement: true // Azure AI Foundry account
+    customSubDomainName: foundryName
+    allowProjectManagement: true // Microsoft Foundry account + projects
     disableLocalAuth: true
     networkAcls: {
       bypass: 'None'
@@ -97,33 +97,33 @@ resource aiFoundry 'Microsoft.CognitiveServices/accounts@2025-06-01' = {
 
 // Role assignments
 
-@description('Assign yourself to have access to the Azure AI Foundry portal.')
+@description('Assign yourself to have access to the Foundry portal.')
 resource cognitiveServicesUser 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(aiFoundry.id, cognitiveServicesUserRole.id, aiFoundryPortalUserPrincipalId)
-  scope: aiFoundry
+  name: guid(foundry.id, cognitiveServicesUserRole.id, foundryPortalUserPrincipalId)
+  scope: foundry
   properties: {
     roleDefinitionId: cognitiveServicesUserRole.id
-    principalId: aiFoundryPortalUserPrincipalId
+    principalId: foundryPortalUserPrincipalId
     principalType: 'User'
   }
 }
 
 // Private endpoints
 
-@description('Connect the Azure AI Foundry account\'s endpoints to your existing private DNS zones.')
-resource aiFoundryPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
-  name: 'pe-ai-foundry'
+@description('Connect the Foundry account\'s endpoints to your existing private DNS zones.')
+resource foundryPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
+  name: 'pe-foundry'
   location: location
   properties: {
     subnet: {
       id: privateEndpointSubnetResourceId
     }
-    customNetworkInterfaceName: 'nic-ai-foundry'
+    customNetworkInterfaceName: 'nic-foundry'
     privateLinkServiceConnections: [
       {
         name: 'aifoundry'
         properties: {
-          privateLinkServiceId: aiFoundry.id
+          privateLinkServiceId: foundry.id
           groupIds: [
             'account'
           ]
@@ -135,10 +135,10 @@ resource aiFoundryPrivateEndpoint 'Microsoft.Network/privateEndpoints@2024-05-01
 
 // Azure diagnostics
 
-@description('Enable logging on the Azure AI Foundry account.')
+@description('Enable logging on the Foundry account.')
 resource azureDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: 'default'
-  scope: aiFoundry
+  scope: foundry
   properties: {
     workspaceId: logAnalyticsWorkspace.id
     logs: [
@@ -180,5 +180,5 @@ resource azureDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-prev
 
 // ---- Outputs ----
 
-@description('The name of the Azure AI Foundry account.')
-output aiFoundryName string = aiFoundry.name
+@description('The name of the Microsoft Foundry account.')
+output foundryName string = foundry.name
