@@ -1,6 +1,6 @@
 # Microsoft Foundry Agent Service chat baseline reference implementation in an application landing zone
 
-This reference implementation extends the foundation set in the [Microsoft Foundry Agent Service chat baseline](https://github.com/Azure-Samples/openai-end-to-end-baseline/) reference implementation. Specifically, this repository takes that reference implementation and deploys it within an application landing zone.
+This reference implementation extends the foundation set in the [Microsoft Foundry Agent Service chat baseline](https://github.com/Azure-Samples/microsoft-foundry-baseline) reference implementation. Specifically, this repository takes that reference implementation and deploys it within an application landing zone.
 
 If you haven't yet, you should start by reviewing the [Baseline Microsoft Foundry chat reference architecture in an Azure landing zone](https://learn.microsoft.com/azure/architecture/ai-ml/architecture/baseline-azure-ai-foundry-landing-zone) article on Microsoft Learn. It sets important context for this implementation that is not covered in this deployment guide.
 
@@ -140,8 +140,8 @@ The following steps are required to deploy the infrastructure from the command l
 1. In your shell, clone this repo and navigate to the root directory of this repository.
 
    ```bash
-   git clone https://github.com/Azure-Samples/azure-openai-chat-baseline-landing-zone
-   cd azure-openai-chat-baseline-landing-zone
+   git clone https://github.com/Azure-Samples/microsoft-foundry-baseline-landing-zone
+   cd microsoft-foundry-baseline-landing-zone
    ```
 
 1. Log in and set the application landing zone subscription.
@@ -328,7 +328,7 @@ The AI agent definition would likely be deployed from your application's pipelin
 
    ```powershell
    # Use the agent definition on disk
-   Invoke-WebRequest -Uri "https://github.com/Azure-Samples/azure-openai-chat-baseline-landing-zone/raw/refs/heads/main/agents/chat-with-bing.json" -OutFile "chat-with-bing.json"
+   Invoke-WebRequest -Uri "https://github.com/Azure-Samples/microsoft-foundry-baseline-landing-zone/raw/refs/heads/main/agents/chat-with-bing.json" -OutFile "chat-with-bing.json"
 
    # Update to match your environment
    ${c:chat-with-bing-output.json} = ${c:chat-with-bing.json} -replace 'MODEL_CONNECTION_NAME', $MODEL_CONNECTION_NAME -replace 'BING_CONNECTION_ID', $BING_CONNECTION_ID
@@ -381,7 +381,7 @@ For this deployment guide, you'll continue using your jump box to simulate part 
 1. Using the same PowerShell terminal session from previous steps, download the web UI.
 
    ```powershell
-   Invoke-WebRequest -Uri https://github.com/Azure-Samples/azure-openai-chat-baseline-landing-zone/raw/refs/heads/main/website/chatui.zip -OutFile chatui.zip
+   Invoke-WebRequest -Uri https://github.com/Azure-Samples/microsoft-foundry-baseline-landing-zone/raw/refs/heads/main/website/chatui.zip -OutFile chatui.zip
    ```
 
 1. Upload the web application to Azure Storage, where the web app will load the code from.
