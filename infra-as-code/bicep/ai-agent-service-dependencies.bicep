@@ -28,7 +28,7 @@ resource agentUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentit
 
 @description('This is the log sink for all Azure Diagnostics in the workload.')
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
-  name: 'log-workload'
+  name: 'log-${baseName}'
   location: location
   properties: {
     sku: {

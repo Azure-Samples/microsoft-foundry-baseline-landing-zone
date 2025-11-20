@@ -92,6 +92,7 @@ Follow these instructions to deploy this example to your application landing zon
 
   - One unassociated route table to force Internet-bound traffic through a platform-provided NVA *(if not using Azure VWAN)*
     - In the same region as your spoke virtual network
+    - Empty Route Table required to complete deployment with VWAN
 
   - A mechanism to get private endpoint DNS registered with the DNS services configured in the virtual network. It also supports injecting specific domains and enables both centralized and distributed DNS registration as a fallback strategy. This ensures that, even when certain services such as Foundry cannot rely on centralized DNS resolution, the mechanism can still inject domains like `documents.azure.com`, `search.windows.net`, and `blob.core.windows.net` as needed.
 
@@ -186,7 +187,7 @@ The following steps are required to deploy the infrastructure from the command l
    You must set the following json values:
 
    - `existingResourceIdForSpokeVirtualNetwork`: The resource ID of the spoke virtual network the platform team deployed into your application landing zone subscription.
-   - `existingResourceIdForUdrForInternetTraffic`: The resource ID of the UDR the platform team deployed into your application landing zone subscription. Leave blank if your platform team is using VWAN-provided route tables instead.
+   - `existingResourceIdForUdrForInternetTraffic`: The resource ID of the UDR the platform team deployed into your application landing zone subscription. Add resource ID of empty Route Table if your platform team is using VWAN-provided route tables instead.
    - This parameters file contains the four `...AddressPrefix` values for the subnets in this architecture. The values must be within the platform-allocated address space for spoke and must be large enough for their respective services. Tip: Update the example ranges, not the subnet mask.
 
 1. Set the resource deployment location to the location of where the virtual network was provisioned for you.
