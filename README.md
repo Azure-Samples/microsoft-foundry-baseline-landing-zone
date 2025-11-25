@@ -267,7 +267,10 @@ The AI agent definition would likely be deployed from your application's pipelin
 
 1. Deploy a jump box, **if necessary**. *Skip this if your platform team has provided workstation-based access or another method.*
 
-   If you need to deploy a jump box into your application landing zone, this deployment guide has a simple one that you can use. You will be prompted for an admin password for the jump box; it must satisfy the [complexity requirements for Windows VM in Azure](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-). You'll need to identify your landing zone virtual network as well in **infra-as-code/bicep/jumpbox/parameters.json**. This is the same value you used in **infra-as-code/bicep/parameters.alz.json**.
+   If you need to deploy a jump box into your application landing zone, this deployment guide has a simple one that you can use. You will be prompted for an admin password for the jump box; it must satisfy the [complexity requirements for Windows VM in Azure](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
+   
+   You'll need to identify your existing landing zone virtual network as well in **infra-as-code/bicep/jumpbox/parameters.json**.:
+      - `existingResourceIdForSpokeVirtualNetwork`: This is the same value you used in **infra-as-code/bicep/parameters.alz.json**.
 
    *There is an optional tracking ID on this deployment. To opt out of the deployment tracking, add the following parameter to the deployment code below: `-p telemetryOptOut true`.*
 
@@ -292,20 +295,20 @@ The AI agent definition would likely be deployed from your application's pipelin
    | :computer: | Unless otherwise noted, the following steps are performed from the jump box or from your VPN-connected workstation. The instructions are written as if you are a Windows jump box. Adjust accordingly if using a Linux virtual machine. |
    | :--------: | :------------------------- |
 
-1. Open PowerShell from the Terminal app. Log in and select your target subscription.
+2. Open PowerShell from the Terminal app. Log in and select your target subscription.
 
    ```powershell
    az login
    az account set --subscription xxxxx
    ```
 
-1. Set the base name to the same value it was when you deployed the resources.
+3. Set the base name to the same value it was when you deployed the resources.
 
    ```powershell
    $BASE_NAME="<exact same value used before>"
    ```
 
-1. Generate some variables to set context within your jump box.
+4. Generate some variables to set context within your jump box.
 
    *The following variables align with the defaults in this deployment. Update them if you customized anything.*
 
@@ -323,7 +326,7 @@ The AI agent definition would likely be deployed from your application's pipelin
    echo $FOUNDRY_AGENT_CREATE_URL
    ```
 
-1. Deploy the agent.
+5. Deploy the agent.
 
    *This step simulates deploying an AI agent through your pipeline from a network-connected build agent.*
 
