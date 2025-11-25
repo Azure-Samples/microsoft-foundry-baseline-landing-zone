@@ -233,7 +233,7 @@ The following steps are required to deploy the infrastructure from the command l
 1. Get workload prequisites outputs
 
    ```bash
-   FOUNDRY_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiFoundryName.value" -o tsv)
+   FOUNDRY_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.foundryName.value" -o tsv)
    COSMOSDB_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.cosmosDbAccountName.value" -o tsv)
    STORAGE_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.storageAccountName.value" -o tsv)
    AISEARCH_ACCOUNT_NAME=$(az deployment sub show --name foundry-chat-prereq-lz-baseline-${BASE_NAME} --query "properties.outputs.aiSearchAccountName.value" -o tsv)
@@ -267,7 +267,10 @@ The AI agent definition would likely be deployed from your application's pipelin
 
 1. Deploy a jump box, **if necessary**. *Skip this if your platform team has provided workstation-based access or another method.*
 
-   If you need to deploy a jump box into your application landing zone, this deployment guide has a simple one that you can use. You will be prompted for an admin password for the jump box; it must satisfy the [complexity requirements for Windows VM in Azure](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-). You'll need to identify your landing zone virtual network as well in **infra-as-code/bicep/jumpbox/parameters.json**. This is the same value you used in **infra-as-code/bicep/parameters.alz.json**.
+   If you need to deploy a jump box into your application landing zone, this deployment guide has a simple one that you can use. You will be prompted for an admin password for the jump box; it must satisfy the [complexity requirements for Windows VM in Azure](https://learn.microsoft.com/azure/virtual-machines/windows/faq#what-are-the-password-requirements-when-creating-a-vm-).
+   You'll need to identify your existing landing zone virtual network as well in **infra-as-code/bicep/jumpbox/parameters.json**.:
+
+   - `existingResourceIdForSpokeVirtualNetwork`: This is the same value you used in **infra-as-code/bicep/parameters.alz.json**.
 
    *There is an optional tracking ID on this deployment. To opt out of the deployment tracking, add the following parameter to the deployment code below: `-p telemetryOptOut true`.*
 
@@ -297,6 +300,11 @@ The AI agent definition would likely be deployed from your application's pipelin
    ```powershell
    az login
    az account set --subscription xxxxx
+   ```
+   If your jump box doesn't have the Azure CLI installed, [Install the Azure CLI using winget](https://learn.microsoft.com/cli/azure/install-azure-cli-windows?view=azure-cli-latest&pivots=winget#install-or-update) if using the provided jump box server.
+
+   ```powershell
+   winget install --exact --id Microsoft.AzureCLI
    ```
 
 1. Set the base name to the same value it was when you deployed the resources.
