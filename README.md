@@ -301,6 +301,10 @@ The AI agent definition would likely be deployed from your application's pipelin
    az login
    az account set --subscription xxxxx
    ```
+   You will need to install [AZ CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?view=azure-cli-latest&pivots=winget#install-or-update) if using the provided jumpbox server. Example with winget:
+   ```powershell
+   winget install --exact --id Microsoft.AzureCLI
+   ```
 
 3. Set the base name to the same value it was when you deployed the resources.
 
