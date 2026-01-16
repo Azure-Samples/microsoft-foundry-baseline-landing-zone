@@ -80,13 +80,13 @@ resource applicationInsights 'Microsoft.Insights/components@2020-02-02' existing
 }
 
 @description('Existing Microsoft Foundry account. The project will be created as a child resource of this account.')
-resource foundry 'Microsoft.CognitiveServices/accounts@2025-06-01' existing  = {
+resource foundry 'Microsoft.CognitiveServices/accounts@2025-10-01-preview' existing  = {
   name: existingFoundryName
 }
 
 // ---- New resources ----
 
-resource foundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-06-01' = {
+resource foundryProject 'Microsoft.CognitiveServices/accounts/projects@2025-10-01-preview' = {
   parent: foundry
   name: 'projchat'
   location: location
@@ -151,7 +151,7 @@ resource threadStorageConnection 'Microsoft.CognitiveServices/accounts/projects/
 }
 
 @description('Create project connection to the Azure Storage account; dependency for Azure AI Agent service.')
-resource storageConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
+resource storageConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-10-01-preview' = {
   parent: foundryProject
   name: agentStorageAccount.name
   properties: {
@@ -170,7 +170,7 @@ resource storageConnection 'Microsoft.CognitiveServices/accounts/projects/connec
 }
 
 @description('Create project connection to Azure AI Search; dependency for Azure AI Agent service.')
-resource aiSearchConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
+resource aiSearchConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-10-01-preview' = {
   parent: foundryProject
   name: azureAISearchService.name
   properties: {
@@ -189,7 +189,7 @@ resource aiSearchConnection 'Microsoft.CognitiveServices/accounts/projects/conne
 }
 
 @description('Connect this project to application insights for visualization of token usage.')
-resource applicationInsightsConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
+resource applicationInsightsConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-10-01-preview' = {
   parent: foundryProject
   name:'appInsights-connection'
   properties: {
@@ -212,7 +212,7 @@ resource applicationInsightsConnection 'Microsoft.CognitiveServices/accounts/pro
 }
 
 @description('Create the Azure AI Agent service.')
-resource aiAgentService 'Microsoft.CognitiveServices/accounts/projects/capabilityHosts@2025-06-01' = {
+resource aiAgentService 'Microsoft.CognitiveServices/accounts/projects/capabilityHosts@2025-10-01-preview' = {
   parent: foundryProject
   name: 'projectagents'
   properties: {
@@ -227,7 +227,7 @@ resource aiAgentService 'Microsoft.CognitiveServices/accounts/projects/capabilit
 }
 
 @description('Create project connection to Bing grounding data. Useful for future agents that get created.')
-resource bingGroundingConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
+resource bingGroundingConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-10-01-preview' = {
   parent: foundryProject
   name: replace(existingBingAccountName, '-', '')
   properties: {
