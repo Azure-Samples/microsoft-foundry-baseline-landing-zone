@@ -44,7 +44,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2025-02
   }
 }
 
-@description('Deploy Azure Storage account for the Azure AI Agent service (dependency). This is used for binaries uploaded within threads or as "knowledge" uploaded as part of an agent.')
+@description('Deploy Azure Storage account for the Azure AI Agent service (dependency). This is used for binaries uploaded within conversations or as "knowledge" uploaded as part of an agent.')
 module deployAgentStorageAccount 'ai-agent-blob-storage.bicep' = {
   scope: resourceGroup()
   params: {
@@ -57,7 +57,7 @@ module deployAgentStorageAccount 'ai-agent-blob-storage.bicep' = {
   }
 }
 
-@description('Deploy Azure Cosmos DB account for the Azure AI Agent service (dependency). This is used for storing agent definitions and threads.')
+@description('Deploy Azure Cosmos DB account for the Azure AI Agent service (dependency). This is used for storing agent definitions and conversations.')
 module deployCosmosDbThreadStorageAccount 'cosmos-db.bicep' = {
   scope: resourceGroup()
   params: {

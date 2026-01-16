@@ -8,19 +8,19 @@ param location string = resourceGroup().location
 @minLength(2)
 param existingFoundryName string
 
-@description('The existing Azure Cosmos DB account that is going to be used as the Azure AI Agent thread storage database (dependency).')
+@description('The existing Azure Cosmos DB account that is going to be used as the Azure AI Foundry Agent conversation storage database (dependency).')
 @minLength(3)
 param existingCosmosDbAccountName string
 
-@description('The existing Azure Storage account that is going to be used as the Azure AI Agent blob store (dependency).')
+@description('The existing Azure Storage account that is going to be used as the Azure AI Foundry Agent blob store (dependency).')
 @minLength(3)
 param existingStorageAccountName string
 
-@description('The existing Azure AI Search account that is going to be used as the Azure AI Agent vector store (dependency).')
+@description('The existing Azure AI Search account that is going to be used as the Azure AI Foundry Agent vector store (dependency).')
 @minLength(1)
 param existingAISearchAccountName string
 
-@description('The existing Bing grounding data account that is available to Azure AI Agent agents in this project.')
+@description('The existing Bing grounding data account that is available to Azure AI Foundry Agent agents in this project.')
 @minLength(1)
 param existingBingAccountName string
 
@@ -134,7 +134,7 @@ module containersWriterSqlAssignment './modules/cosmosdbSqlRoleAssignment.bicep'
   ]
 }
 
-@description('Create project connection to CosmosDB (thread storage); dependency for Azure AI Agent service.')
+@description('Create project connection to CosmosDB (conversation storage); dependency for Azure AI Foundry Agent service.')
 resource threadStorageConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
   parent: foundryProject
   name: cosmosDbAccount.name
