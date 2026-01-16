@@ -8,19 +8,19 @@ param location string = resourceGroup().location
 @minLength(2)
 param existingFoundryName string
 
-@description('The existing Azure Cosmos DB account that is going to be used as the Azure AI Agent thread storage database (dependency).')
+@description('The existing Azure Cosmos DB account that is going to be used as the Azure AI Foundry Agent conversation storage database (dependency).')
 @minLength(3)
 param existingCosmosDbAccountName string
 
-@description('The existing Azure Storage account that is going to be used as the Azure AI Agent blob store (dependency).')
+@description('The existing Azure Storage account that is going to be used as the Azure AI Foundry Agent blob store (dependency).')
 @minLength(3)
 param existingStorageAccountName string
 
-@description('The existing Azure AI Search account that is going to be used as the Azure AI Agent vector store (dependency).')
+@description('The existing Azure AI Search account that is going to be used as the Azure AI Foundry Agent vector store (dependency).')
 @minLength(1)
 param existingAISearchAccountName string
 
-@description('The existing Bing grounding data account that is available to Azure AI Agent agents in this project.')
+@description('The existing Bing grounding data account that is available to Azure AI Foundry Agent agents in this project.')
 @minLength(1)
 param existingBingAccountName string
 
@@ -44,9 +44,7 @@ resource agentUserManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentit
 var workspaceId = foundryProject.properties.internalId
 var workspaceIdAsGuid = '${substring(workspaceId, 0, 8)}-${substring(workspaceId, 8, 4)}-${substring(workspaceId, 12, 4)}-${substring(workspaceId, 16, 4)}-${substring(workspaceId, 20, 12)}'
 
-var scopeUserContainerId = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DocumentDB/databaseAccounts/${cosmosDbAccount.name}/dbs/enterprise_memory/colls/${workspaceIdAsGuid}-thread-message-store'
-var scopeSystemContainerId = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DocumentDB/databaseAccounts/${cosmosDbAccount.name}/dbs/enterprise_memory/colls/${workspaceIdAsGuid}-system-thread-message-store'
-var scopeEntityContainerId = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DocumentDB/databaseAccounts/${cosmosDbAccount.name}/dbs/enterprise_memory/colls/${workspaceIdAsGuid}-agent-entity-store'
+var scopeAllContainers = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.DocumentDB/databaseAccounts/${cosmosDbAccount.name}/dbs/enterprise_memory'
 
 @description('Existing Azure Cosmos DB account. Will be assigning Data Contributor role to the Foundry project\'s identity.')
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2024-12-01-preview' existing = {
@@ -120,58 +118,24 @@ module projectBlobDataOwnerConditionalAssignment './modules/storageAccountRoleAs
 
 // Sql Role Assignments
 
-@description('Assign the project\'s managed identity the ability to read and write data in this collection within enterprise_memory database.')
-module projectUserThreadContainerWriterSqlAssignment './modules/cosmosdbSqlRoleAssignment.bicep' = {
-  name: 'projectUserThreadContainerWriterSqlAssignmentDeploy'
+@description('Assign the project\'s managed identity the ability to read and write data in all collections within enterprise_memory database.')
+module containersWriterSqlAssignment './modules/cosmosdbSqlRoleAssignment.bicep' = {
+  name: 'containersWriterSqlAssignmentDeploy'
   params: {
     roleDefinitionId: cosmosDbAccount::dataContributorRole.id
     principalId: agentUserManagedIdentity.properties.principalId
     existingCosmosDbAccountName: existingCosmosDbAccountName
     existingCosmosDbName: 'enterprise_memory'
-    existingCosmosCollectionTypeName: 'user'
-    scopeUserContainerId: scopeUserContainerId
+    existingCosmosCollectionTypeName: 'containers'
+    scopeUserContainerId: scopeAllContainers
   }
   dependsOn: [
     aiAgentService
   ]
 }
 
-@description('Assign the project\'s managed identity the ability to read and write data in this collection within enterprise_memory database.')
-module projectSystemThreadContainerWriterSqlAssignment './modules/cosmosdbSqlRoleAssignment.bicep' = {
-  name: 'projectSystemThreadContainerWriterSqlAssignmentDeploy'
-  params: {
-    roleDefinitionId: cosmosDbAccount::dataContributorRole.id
-    principalId: agentUserManagedIdentity.properties.principalId
-    existingCosmosDbAccountName: existingCosmosDbAccountName
-    existingCosmosDbName: 'enterprise_memory'
-    existingCosmosCollectionTypeName: 'system'
-    scopeUserContainerId: scopeSystemContainerId
-  }
-  dependsOn: [
-    aiAgentService
-    projectUserThreadContainerWriterSqlAssignment // Single thread applying these permissions.
-  ]
-}
-
-@description('Assign the project\'s managed identity the ability to read and write data in this collection within enterprise_memory database.')
-module projectEntityContainerWriterSqlAssignment './modules/cosmosdbSqlRoleAssignment.bicep' = {
-  name: 'projectEntityContainerWriterSqlAssignmentDeploy'
-  params: {
-    roleDefinitionId: cosmosDbAccount::dataContributorRole.id
-    principalId: agentUserManagedIdentity.properties.principalId
-    existingCosmosDbAccountName: existingCosmosDbAccountName
-    existingCosmosDbName: 'enterprise_memory'
-    existingCosmosCollectionTypeName: 'entities'
-    scopeUserContainerId: scopeEntityContainerId
-  }
-  dependsOn: [
-    aiAgentService
-    projectSystemThreadContainerWriterSqlAssignment // Single thread applying these permissions.
-  ]
-}
-
-@description('Create project connection to CosmosDB (thread storage); dependency for Azure AI Agent service.')
-resource threadStorageConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-10-01-preview' = {
+@description('Create project connection to CosmosDB (conversation storage); dependency for Azure AI Foundry Agent service.')
+resource threadStorageConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
   parent: foundryProject
   name: cosmosDbAccount.name
   properties: {
