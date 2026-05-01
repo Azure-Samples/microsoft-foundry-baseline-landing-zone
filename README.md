@@ -59,7 +59,7 @@ Microsoft Foundry hosts the Foundry Agent Service as a capability. Foundry Agent
 
 ### Deploying an agent into Foundry Agent Service
 
-Agents can be created via the Foundry portal, Azure AI Persistent Agents client library, or the REST API. The creation and invocation of agents are a data plane operation. Since the data plane to Foundry is private, all three of those are restricted to being executed from within a private network connected to the private endpoint of Foundry.
+Project-scoped agents are created and managed through the Foundry [Agents REST API](https://learn.microsoft.com/rest/api/aifoundry/aiproject#agents), which is the underlying primitive for agent lifecycle operations. The Microsoft Foundry portal and the [Foundry SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/ai/Azure.AI.Projects) consume this API. Since the data plane to Foundry is private, all of these operations are restricted to being executed from within a private network connected to the private endpoint of Foundry.
 
 Ideally agents should be source-controlled and a versioned asset. You then can deploy agents in a coordinated way with the rest of your workload's code. In this deployment guide, you'll create an agent from the jump box to simulate a deployment pipeline which could have created the agent.
 
@@ -67,7 +67,9 @@ If using the Foundry portal is desired, then the web browser experience must be 
 
 ### Invoking the agent from .NET code hosted in an Azure Web App
 
-A chat UI application is deployed into a private Azure App Service. The UI is accessed through Application Gateway (WAF). The .NET code uses the Azure AI Persistent Agents client library to connect to the workload's agent. The endpoint for the agent is exposed exclusively through the Foundry private endpoint.
+A chat UI application is deployed into a private Azure App Service. The UI is accessed through Application Gateway (WAF). The .NET code uses the [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) with the Foundry provider to connect to the workload's agent through the project-scoped endpoint. At this scope, applications can choose between Microsoft Agent Framework or the [Foundry SDK](https://github.com/Azure/azure-sdk-for-net/tree/main/sdk/ai/Azure.AI.Projects). The project-scoped endpoint is accessed through the Foundry private endpoint within the virtual network.
+
+Agent invocation at runtime uses a different API surface than agent lifecycle management. [Microsoft Agent Framework](https://github.com/microsoft/agent-framework) uses exclusively the [OpenAI Conversations](https://learn.microsoft.com/rest/api/aifoundry/aiproject#conversations) and [Responses](https://learn.microsoft.com/rest/api/aifoundry/aiproject#responses-94) APIs, identifying the agent by name and version directly in the request body.
 
 ## Deployment guide
 
@@ -350,10 +352,12 @@ The AI agent definition would likely be deployed from your application's pipelin
    # Deploy the agent
    az rest -u $FOUNDRY_AGENT_CREATE_URL -m "post" --resource "https://ai.azure.com" -b @chat-with-bing-output.json
 
-   # Capture the Agent's ID
+   # Capture the Agent's ID and Version
    $AGENT_ID="$(az rest -u $FOUNDRY_AGENT_CREATE_URL -m 'get' --resource 'https://ai.azure.com' --query last_id -o tsv)"
 
+   $AGENT_VERSION="$(az rest -u $FOUNDRY_AGENT_CREATE_URL -m 'get' --resource 'https://ai.azure.com' --query 'data[-1].versions.latest.version' -o tsv)"
    echo $AGENT_ID
+   echo $AGENT_VERSION
    ```
 
 ### 3. Test the agent from the Foundry portal in the playground. *Optional.*
@@ -383,7 +387,7 @@ Here you'll test your orchestration agent by invoking it directly from the Found
 
 1. A grounded response to your question should appear on the UI.
 
-### 4. Publish the chat front-end web app
+### 4. Deploy the chat front-end web app
 
 Workloads build chat functionality into an application. Those interfaces usually call APIs which in turn call into your orchestrator. This implementation comes with such an interface. You'll deploy it to Azure App Service using its [run from package](https://learn.microsoft.com/azure/app-service/deploy-run-package) capabilities.
 
@@ -420,7 +424,7 @@ For this deployment guide, you'll continue using your jump box to simulate part 
 1. Update the app configuration to use the agent you deployed.
 
    ```powershell
-   az webapp config appsettings set -n "app-${BASE_NAME}" -g $RESOURCE_GROUP --settings AIAgentId="${AGENT_ID}"
+   az webapp config appsettings set -n "app-${BASE_NAME}" -g $RESOURCE_GROUP --settings AIAgentId="${AGENT_ID}" AIAgentVersion="${AGENT_VERSION}"
    ```
 
 1. Restart the web app to load the site code and its updated configuation.
